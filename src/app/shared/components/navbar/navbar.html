@@ -1,0 +1,13 @@
+<aside class="sidebar">
+  <div class="brand">TinkerLog</div>
+  <nav>
+    <a routerLink="/proyecto" class="nav-item">Último Proyecto</a>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="theme-toggle" (click)="toggleTheme()">
+      {{ isDarkTheme ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
+    </button>
+    <div class="network-status online">● Online</div>
+  </div>
+</aside>

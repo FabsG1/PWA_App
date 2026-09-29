@@ -1,0 +1,22 @@
+.app-layout {
+  display: flex;
+  height: 100vh;       /* Fija el tamaño total a la pantalla */
+  overflow: hidden;    /* Evita el scroll general de la página */
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;    /* Habilita el scroll SOLO en este contenedor */
+}
+
+.content-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+}

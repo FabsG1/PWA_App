@@ -1,0 +1,45 @@
+<article class="project-view">
+  <header class="log-header">
+    <h1>Construcción de DAC de Audio Hi-Res (PCM5102A)</h1>
+    <div class="metadata">
+      <span class="tag">C++</span>
+      <span class="tag">Hardware</span>
+      <span class="tag">Procesamiento de Señal</span>
+      <span class="tag">I2S</span>
+    </div>
+    <p class="description">Diseño y ensamblaje de un Convertidor Digital a Analógico (DAC) personalizado utilizando el protocolo I2S. El objetivo es lograr una salida de audio sin pérdida (Lossless), reduciendo la latencia de sonido para comparar su rango dinámico y espectro frente a las salidas de audio integradas en smartphones y ecosistemas de auriculares inalámbricos de gama alta.</p>
+  </header>
+
+  <!-- Código -->
+  <section class="code-section">
+    <div class="code-header">
+      <span>audio_i2s_config.cpp</span>
+      <button (click)="copyCode()">Copiar</button>
+    </div>
+    <pre>[highlight]="codeSnippet" [languages]="['cpp']"</pre>
+  </section>
+
+  <!-- Multimedia: Imágenes y Video -->
+  <section class="media-section">
+    <h2>Evidencia de Ensamblaje y Pruebas</h2>
+    <div class="media-grid">
+      <div class="media-card video-card">
+        <!-- Puedes cambiar este video por uno real tuyo más adelante -->
+        <video controls poster="https://images.unsplash.com/photo-1598550476439-6847785fcea6?auto=format&fit=crop&w=800&q=80">
+          <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+        </video>
+        <div class="caption">Prueba de latencia y osciloscopio de la señal de salida analógica</div>
+      </div>
+      
+      <div class="media-card">
+        <img src="https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?auto=format&fit=crop&w=400&q=80" alt="Soldadura del DAC">
+        <div class="caption">Soldadura de pines del chip PCM5102A</div>
+      </div>
+      
+      <div class="media-card">
+        <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=400&q=80" alt="Espectro de Audio">
+        <div class="caption">Análisis del espectro y aislamiento de ruido de la fuente</div>
+      </div>
+    </div>
+  </section>
+</article>
