@@ -1,8 +1,22 @@
 <div class="app-layout">
   <app-navbar></app-navbar>
+  
   <main class="content">
     <div class="content-inner">
+      <!-- Aquí cargan las páginas (Inicio, Foro, etc.) -->
       <router-outlet></router-outlet>
+      
+      <!-- Footer de Derechos Reservados -->
+      <footer class="app-footer">
+        <p>&copy; 2026 TinkerLog. Todos los derechos reservados.</p>
+        <div class="footer-links">
+          <a href="#">Términos de Servicio</a>
+          <span class="separator">•</span>
+          <a href="#">Política de Privacidad</a>
+          <span class="separator">•</span>
+          <a href="#">Contacto</a>
+        </div>
+      </footer>
     </div>
   </main>
 </div>

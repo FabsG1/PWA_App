@@ -1,0 +1,58 @@
+{
+  /* Nombre completo de la aplicación. Es el que aparece cuando se instala y se abre. */
+  "name": "TinkerLog - Foro y Bitácora Técnica",
+  
+  /* Nombre corto utilizado en la pantalla de inicio del dispositivo donde el espacio es limitado. */
+  "short_name": "TinkerLog",
+  
+  /* Descripción general de la app, útil para motores de búsqueda o tiendas de PWAs. */
+  "description": "Bitácora interactiva y foro para documentar proyectos de ingeniería de software, modding y hardware.",
+  
+  /* Color principal de la interfaz. Define el color de la barra de estado en Android y la barra superior. */
+  "theme_color": "#09090b",
+  
+  /* Color de fondo que se muestra en la pantalla de carga (Splash Screen) antes de que la app renderice el contenido. */
+  "background_color": "#09090b",
+  
+  /* Define cómo se mostrará la app. "standalone" oculta los controles del navegador (URL, botones) para que luzca como app nativa. */
+  "display": "standalone",
+  
+  /* Obliga o permite la rotación de la pantalla. "any" permite modo vertical y horizontal. */
+  "orientation": "any",
+  
+  /* La ruta inicial que se cargará cuando el usuario abra la app instalada. "/" indica la raíz (Inicio). */
+  "start_url": "/",
+  
+  /* Define el ámbito de navegación. Solo las páginas bajo esta ruta "/" serán consideradas parte de la PWA. */
+  "scope": "/",
+  
+  /* Define el idioma principal de la aplicación (Español). */
+  "lang": "es",
+  
+  /* Categorías a las que pertenece la app, útil para integraciones con sistemas operativos. */
+  "categories": ["education", "productivity", "utilities"],
+  
+  /* Arreglo de objetos que contiene los íconos de la app en diferentes resoluciones. */
+  "icons": [
+    {
+      /* Ruta donde se encuentra el ícono. */
+      "src": "assets/icons/icon-192x192.png",
+      /* Dimensiones exactas del ícono. */
+      "sizes": "192x192",
+      /* Formato del archivo de imagen. */
+      "type": "image/png",
+      /* "maskable" permite que el sistema operativo adapte el ícono a la forma que use (círculo, cuadrado redondeado). */
+      "purpose": "maskable any"
+    },
+    {
+      /* Ruta del ícono de alta resolución, usado en dispositivos y superficies que requieren 512 × 512 píxeles. */
+      "src": "assets/icons/icon-512x512.png",
+      /* Dimensiones exactas del ícono de alta resolución. */
+      "sizes": "512x512",
+      /* Formato del archivo de imagen. */
+      "type": "image/png",
+      /* "maskable" permite adaptar el ícono a la forma del sistema operativo; "any" habilita su uso general. */
+      "purpose": "maskable any"
+    }
+  ]
+}

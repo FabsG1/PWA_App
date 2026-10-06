@@ -1,12 +1,15 @@
 .sidebar {
-  width: 250px;
+  width: 260px;
   background: var(--bg-card);
-  padding: 2rem 1rem;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 2rem 1.5rem;
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   height: 100vh;
-  flex-shrink: 0; /* Evita que el sidebar se aplaste */
+  flex-shrink: 0;
+  z-index: 10;
 }
 .brand {
   font-size: 1.5rem;
@@ -54,3 +57,14 @@
     border-bottom: 1px solid var(--border-color);
   }
 }
+.btn-primary {
+  width: 100%; padding: 0.8rem; margin-bottom: 1.5rem; background: var(--accent-color); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: opacity 0.2s;
+  &:hover { opacity: 0.9; }
+}
+.forum-nav h3 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin: 1.5rem 0 0.5rem 1rem; letter-spacing: 1px; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+.dot.mobile { background: #3ddc84; } .dot.gamedev { background: #fff; border: 1px solid #000; } .dot.modding { background: #107c10; } .dot.docs { background: #e34f26; }
+.user-profile { display: flex; align-items: center; gap: 10px; padding: 1rem 0; border-top: 1px solid var(--border-color); }
+.user-profile img { width: 40px; border-radius: 50%; }
+.user-info { display: flex; flex-direction: column; font-size: 0.85rem; }
+.user-info .status { color: #3fb950; font-size: 0.75rem; }

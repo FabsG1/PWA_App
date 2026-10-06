@@ -1,22 +1,78 @@
 .app-layout {
   display: flex;
-  height: 100vh;       /* Fija el tamaño total a la pantalla */
-  overflow: hidden;    /* Evita el scroll general de la página */
+  height: 100vh;       
+  overflow: hidden;    
 }
 
 .content {
   flex: 1;
-  padding: 2rem;
-  overflow-y: auto;    /* Habilita el scroll SOLO en este contenedor */
+  padding: 2rem 2rem 0 2rem; 
+  overflow-y: auto;    
+  display: flex;
+  flex-direction: column;
 }
 
 .content-inner {
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  flex: 1; /* Permite que el contenedor crezca a todo el alto */
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Estilos del Footer --- */
+.app-footer {
+  margin-top: auto; /* Empuja el footer siempre hacia abajo */
+  padding: 3rem 0 2rem 0;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05); /* Línea divisoria muy sutil */
+  
+  p {
+    margin: 0;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    
+    a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s ease;
+      
+      &:hover {
+        color: var(--accent-color);
+      }
+    }
+    
+    .separator {
+      color: var(--border-color);
+      font-size: 0.6rem;
+    }
+  }
+}
+
+/* Tema claro para la línea del footer */
+:host-context(.light-theme) .app-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 768px) {
   .app-layout {
     flex-direction: column;
+  }
+  .content {
+    padding: 1rem 1rem 0 1rem;
+  }
+  .app-footer {
+    padding: 2rem 0 1.5rem 0;
   }
 }

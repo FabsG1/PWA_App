@@ -1,13 +1,26 @@
 <aside class="sidebar">
-  <div class="brand">TinkerLog</div>
-  <nav>
-    <a routerLink="/proyecto" class="nav-item">Último Proyecto</a>
-  </nav>
-  
-  <div class="sidebar-footer">
-    <button class="theme-toggle" (click)="toggleTheme()">
-      {{ isDarkTheme ? '☀️ Modo Claro' : '🌙 Modo Oscuro' }}
-    </button>
-    <div class="network-status online">● Online</div>
+  <div class="brand">
+    <span class="icon">⬡</span> ThinkerLog
   </div>
+  
+  <button class="btn-primary" routerLink="/nueva-publicacion">
+    + Nueva Publicación
+  </button>
+
+  <nav class="forum-nav">
+    <div class="nav-section">
+      <h3>Principal</h3>
+      <a routerLink="/foro" class="nav-item active">🏠 Inicio del Foro</a>
+      <a href="#" class="nav-item">🔥 Tendencias</a>
+      <a href="#" class="nav-item">🔖 Guardados</a>
+    </div>
+
+    <div class="nav-section">
+      <h3>Categorías</h3>
+      <a href="#" class="nav-item"><span class="dot mobile"></span> Desarrollo Móvil</a>
+      <a href="#" class="nav-item"><span class="dot gamedev"></span> Game Dev</a>
+      <a href="#" class="nav-item"><span class="dot modding"></span> Hardware & Modding</a>
+      <a href="#" class="nav-item"><span class="dot docs"></span> Recursos y PDFs</a>
+    </div>
+  </nav>
 </aside>
