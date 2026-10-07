@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#09090b" />
+    <title>Sin conexión · ThinkerLog</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" />
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        min-height: 100vh; display: grid; place-items: center; padding: 2rem;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at top left, #1c1c22, #09090b); color: #fff;
+      }
+      .card {
+        max-width: 420px; text-align: center; padding: 2.5rem 2rem; border-radius: 20px;
+        background: rgba(22, 27, 34, 0.6); border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+      }
+      img { width: 88px; height: 88px; margin-bottom: 1.25rem; }
+      h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+      p { color: #a1a1aa; line-height: 1.6; margin-bottom: 1.5rem; }
+      button {
+        border: 0; border-radius: 10px; padding: 0.8rem 1.6rem; font-weight: 700; cursor: pointer;
+        color: #fff; background: linear-gradient(135deg, #58a6ff, #a371f7);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <img src="/icons/icon-192x192.png" alt="ThinkerLog" />
+      <h1>Estás sin conexión</h1>
+      <p>No pudimos cargar esta página. Revisa tu conexión a internet; las páginas que ya visitaste siguen disponibles.</p>
+      <button onclick="location.reload()">Reintentar</button>
+    </main>
+    <script>
+      window.addEventListener('online', () => location.reload());
+    </script>
+  </body>
+</html>
+

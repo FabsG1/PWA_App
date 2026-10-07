@@ -1,25 +1,19 @@
-import { Component, Inject, Renderer2 } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { DOCUMENT } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { PwaService } from '../../../core/services/pwa.service';
+import { ThemeService } from '../../../core/services/theme.service';
+import { FirebaseService } from '../../../core/services/firebase.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive, CommonModule],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss'
+  styleUrl: './navbar.scss',
 })
 export class NavbarComponent {
-  isDarkTheme = true;
-
-  constructor(@Inject(DOCUMENT) private document: Document, private renderer: Renderer2) {}
-
-  toggleTheme() {
-    this.isDarkTheme = !this.isDarkTheme;
-    if (this.isDarkTheme) {
-      this.renderer.removeClass(this.document.body, 'light-theme');
-    } else {
-      this.renderer.addClass(this.document.body, 'light-theme');
-    }
-  }
+  protected readonly pwa = inject(PwaService);
+  protected readonly theme = inject(ThemeService);
+  protected readonly firebase = inject(FirebaseService);
 }

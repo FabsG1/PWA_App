@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FirebaseService, Post } from '../../core/services/firebase.service';
 
 @Component({
   selector: 'app-forum-feed',
@@ -15,34 +16,41 @@ import { RouterLink } from '@angular/router';
     </div>
 
     <div class="post-list">
-      @for (post of posts; track post.id) {
-        <!-- Envolvemos el card con routerLink hacia /post/:id -->
-        <article class="post-card" [routerLink]="['/post', post.id]">
-          <div class="post-votes">
-            <button (click)="$event.stopPropagation()">▲</button>
-            <span>{{ post.votes }}</span>
-            <button (click)="$event.stopPropagation()">▼</button>
-          </div>
-          
-          <div class="post-content">
-            <div class="post-meta">
-              <span class="category" [class]="post.catClass">{{ post.category }}</span>
-              <span class="author">Publicado por {{ post.author }} hace {{ post.time }}</span>
+      @if (isLoading()) {
+        <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Cargando publicaciones...</p>
+      } @else if (posts().length === 0) {
+        <div style="text-align: center; padding: 3rem; background: var(--bg-card); border-radius: 8px; border: 1px dashed var(--border-color);">
+          <h2 style="margin-bottom: 1rem;">No hay publicaciones aún</h2>
+          <a routerLink="/nueva-publicacion" class="btn-primary" style="display: inline-block; padding: 0.8rem 1.5rem; text-decoration: none;">Sé el primero en publicar</a>
+        </div>
+      } @else {
+        @for (post of posts(); track post.id) {
+          <article class="post-card" [routerLink]="['/post', post.id]">
+            <div class="post-votes">
+              <button (click)="$event.stopPropagation(); vote(post.id!, 'up')">▲</button>
+              <span>{{ post.votes || 0 }}</span>
+              <button (click)="$event.stopPropagation(); vote(post.id!, 'down')">▼</button>
             </div>
-            <h2 class="post-title">{{ post.title }}</h2>
-            <p class="post-excerpt">{{ post.excerpt }}</p>
             
-            <div class="post-footer">
-              <div class="tags">
-                @for (tag of post.tags; track tag) { <span class="tag">{{ tag }}</span> }
+            <div class="post-content">
+              <div class="post-meta">
+                <span class="category" [class]="getCatClass(post.category)">{{ post.category }}</span>
+                <span class="author">Publicado por {{ post.author }} hace {{ getTimeAgo(post.createdAt) }}</span>
               </div>
-              <div class="post-actions">
-                <span class="comments">💬 {{ post.comments }} comentarios</span>
-                @if(post.hasPdf) { <span class="attachment">📎 1 PDF adjunto</span> }
+              <h2 class="post-title">{{ post.title }}</h2>
+              <p class="post-excerpt">{{ post.body | slice:0:150 }}{{ post.body.length > 150 ? '...' : '' }}</p>
+              
+              <div class="post-footer">
+                <div class="tags">
+                  @for (tag of post.tags; track tag) { <span class="tag">{{ tag }}</span> }
+                </div>
+                <div class="post-actions">
+                  <span class="comments">💬 0 comentarios</span>
+                </div>
               </div>
             </div>
-          </div>
-        </article>
+          </article>
+        }
       }
     </div>
   `,
@@ -64,7 +72,65 @@ import { RouterLink } from '@angular/router';
   `]
 })
 export class ForumFeedComponent {
-  posts = [
-    { id: 1, votes: 124, category: 'Hardware & Modding', catClass: 'cat-mod', author: 'AudioIng', time: '10 min', title: 'Construcción de DAC de Audio Hi-Res (PCM5102A) con I2S', excerpt: 'Diseño y ensamblaje de un Convertidor Digital a Analógico (DAC) personalizado utilizando el protocolo I2S...', tags: ['C++', 'Hardware', 'I2S'], comments: 45, hasPdf: true },
-  ];
+  private readonly firebase = inject(FirebaseService);
+
+  posts = signal<Post[]>([]);
+  isLoading = signal(true);
+
+  constructor() {
+    this.loadPosts();
+  }
+
+  async loadPosts() {
+    this.isLoading.set(true);
+    try {
+      const data = await this.firebase.getPosts();
+      this.posts.set(data);
+    } catch (err) {
+      console.error('Error cargando posts:', err);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  getCatClass(category: string): string {
+    const map: Record<string, string> = {
+      'Desarrollo Móvil': 'cat-mobile',
+      'Game Dev': 'cat-game',
+      'Hardware & Modding': 'cat-mod'
+    };
+    return map[category] || 'cat-docs';
+  }
+
+  async vote(postId: string, value: 'up' | 'down') {
+    if (!this.firebase.currentUser()) {
+      alert('Inicia sesión para votar');
+      return;
+    }
+    try {
+      await this.firebase.votePost(postId, value);
+      await this.loadPosts();
+    } catch (e) {
+      console.error('Error al votar', e);
+      alert('Error al votar');
+    }
+  }
+
+  getTimeAgo(date: any): string {
+    if (!date) return 'ahora';
+    // date es un Timestamp de Firestore
+    const seconds = Math.floor((new Date().getTime() - date.toDate().getTime()) / 1000);
+    
+    let interval = seconds / 31536000;
+    if (interval > 1) return Math.floor(interval) + ' años';
+    interval = seconds / 2592000;
+    if (interval > 1) return Math.floor(interval) + ' meses';
+    interval = seconds / 86400;
+    if (interval > 1) return Math.floor(interval) + ' días';
+    interval = seconds / 3600;
+    if (interval > 1) return Math.floor(interval) + 'h';
+    interval = seconds / 60;
+    if (interval > 1) return Math.floor(interval) + 'm';
+    return Math.floor(seconds) + 's';
+  }
 }

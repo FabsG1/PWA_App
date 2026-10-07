@@ -1,4 +1,4 @@
-@import 'highlight.js/scss/github-dark.scss';
+@use 'highlight.js/scss/github-dark.scss';
 
 :root {
   /* Tema Oscuro Premium */
@@ -13,6 +13,8 @@
   --accent-bg: rgba(88, 166, 255, 0.1);
   --code-bg: rgba(1, 4, 9, 0.8);
   --glass-blur: blur(12px);
+  --accent-gradient: linear-gradient(135deg, #58a6ff, #a371f7);
+  color-scheme: dark;
 }
 
 body.light-theme {
@@ -27,6 +29,8 @@ body.light-theme {
   --accent-color: #2563eb;
   --accent-bg: rgba(37, 99, 235, 0.1);
   --code-bg: rgba(241, 245, 249, 0.8);
+  --accent-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
+  color-scheme: light;
 }
 
 * {
@@ -35,12 +39,18 @@ body.light-theme {
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overscroll-behavior: none; /* Sensación de app nativa: sin "rebote" */
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background: var(--bg-gradient);
   background-attachment: fixed;
   color: var(--text-main);
   transition: background 0.4s ease, color 0.4s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Efecto de Cristal para elementos compartidos */

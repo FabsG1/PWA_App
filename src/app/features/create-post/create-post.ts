@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { FirebaseService } from '../../core/services/firebase.service';
 
 @Component({
   selector: 'app-create-post',
   standalone: true,
+  imports: [RouterLink, FormsModule],
   template: `
     <div class="create-post-container">
       <header>
@@ -10,19 +14,19 @@ import { Component } from '@angular/core';
         <p>Inicia un debate, comparte código o sube recursos técnicos.</p>
       </header>
 
-      <form class="post-form">
+      <form (submit)="onSubmit($event)" class="post-form">
         <div class="form-group">
-          <input type="text" class="input-title" placeholder="Título de tu publicación...">
+          <input type="text" class="input-title" placeholder="Título de tu publicación..." [(ngModel)]="title" name="title" required>
         </div>
 
         <div class="form-row">
-          <select class="input-select">
+          <select class="input-select" [(ngModel)]="category" name="category" required>
             <option value="">Selecciona una categoría...</option>
             <option>Desarrollo Móvil</option>
             <option>Game Dev</option>
             <option>Hardware & Modding</option>
           </select>
-          <input type="text" class="input-tags" placeholder="Etiquetas (ej. Kotlin, Unity, Scripts)">
+          <input type="text" class="input-tags" placeholder="Etiquetas (ej. Kotlin, Unity, Scripts)" [(ngModel)]="tags" name="tags">
         </div>
 
         <div class="editor-toolbar">
@@ -31,27 +35,33 @@ import { Component } from '@angular/core';
           <button type="button">&lt;/&gt;</button>
           <button type="button">🔗</button>
         </div>
-        <textarea class="input-body" placeholder="Escribe tu publicación aquí... (Soporta Markdown)"></textarea>
+        <textarea class="input-body" placeholder="Escribe tu publicación aquí... (Soporta Markdown)" [(ngModel)]="body" name="body" required></textarea>
 
-        <!-- Zona de Drag & Drop para Recursos -->
-        <div class="upload-zone">
+        <!-- Zona de Archivos -->
+        <div class="upload-zone" (click)="fileInput.click()">
           <div class="upload-icon">📂</div>
-          <h3>Adjuntar Recursos Visuales y PDFs</h3>
-          <p>Arrastra y suelta archivos aquí o <span>explora en tu equipo</span></p>
-          <div class="upload-limits">
-            Soporta: JPG, PNG, MP4, PDF (Máx. 50MB)
-          </div>
+          <h3>{{ selectedFile ? 'Archivo seleccionado' : 'Adjuntar recurso' }}</h3>
+          <p>
+            @if (selectedFile) {
+              <span style="color: var(--text-main);">{{ selectedFile.name }} ({{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
+            } @else {
+              Arrastra y suelta o <span>explora en tu equipo</span>
+            }
+          </p>
+          <input type="file" #fileInput (change)="onFileSelected($event)" style="display:none" accept="image/*,.pdf">
         </div>
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" routerLink="/foro">Cancelar</button>
-          <button type="submit" class="btn-submit">Publicar en el foro</button>
+          <button type="submit" class="btn-submit" [disabled]="isLoading()">
+            {{ isLoading() ? 'Publicando...' : 'Publicar en el foro' }}
+          </button>
         </div>
       </form>
     </div>
   `,
   styles: [`
-    .create-post-container { max-width: 900px; margin: 0 auto; }
+    .create-post-container { max-width: 900px; margin: 0 auto; animation: fadeIn 0.4s ease; }
     header { margin-bottom: 2rem; h1 { color: var(--text-main); } p { color: var(--text-muted); } }
     .post-form { display: flex; flex-direction: column; gap: 1.5rem; }
     
@@ -73,7 +83,65 @@ import { Component } from '@angular/core';
     
     .form-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; }
     .btn-cancel { padding: 0.8rem 1.5rem; background: transparent; border: 1px solid var(--border-color); color: var(--text-main); border-radius: 6px; cursor: pointer; &:hover { background: var(--bg-hover); } }
-    .btn-submit { padding: 0.8rem 2rem; background: var(--accent-color); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; &:hover { opacity: 0.9; } }
+    .btn-submit { padding: 0.8rem 2rem; background: var(--accent-gradient); color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; &:hover { opacity: 0.9; } &:disabled { opacity: 0.5; cursor: not-allowed; } }
   `]
 })
-export class CreatePostComponent {}
+export class CreatePostComponent {
+  private readonly firebase = inject(FirebaseService);
+  private readonly router = inject(Router);
+
+  isLoading = signal(false);
+
+  title = '';
+  category = '';
+  tags = '';
+  body = '';
+  selectedFile: File | null = null;
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) this.selectedFile = file;
+  }
+
+  async onSubmit(event: Event) {
+    event.preventDefault();
+    if (!this.title || !this.body || !this.category) {
+      alert('Por favor, completa el título, la categoría y el contenido.');
+      return;
+    }
+    if (!this.firebase.currentUser()) {
+      alert('Debes iniciar sesión para publicar.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.isLoading.set(true);
+    try {
+      let fileUrl = '';
+      let fileName = '';
+      
+      // Si hay archivo, súbelo primero a Firebase Storage
+      if (this.selectedFile) {
+        fileUrl = await this.firebase.uploadFile(this.selectedFile, 'posts_files');
+        fileName = this.selectedFile.name;
+      }
+
+      const tagArray = this.tags.split(',').map(t => t.trim()).filter(t => t.length > 0);
+      
+      const postId = await this.firebase.createPost({
+        title: this.title,
+        body: this.body,
+        category: this.category,
+        tags: tagArray,
+        ...(fileUrl ? { fileUrl, fileName } : {})
+      });
+
+      this.router.navigate(['/post', postId]);
+    } catch (err) {
+      console.error('Error al publicar:', err);
+      alert('Hubo un error al publicar. Verifica tu conexión.');
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+}

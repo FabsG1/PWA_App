@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:ThinkerLog": "node dist/ThinkerLog/server/server.mjs"
+    "serve:ssr:ThinkerLog": "node dist/ThinkerLog/server/server.mjs",
+    "serve:pwa": "ng build && npx --yes serve dist/ThinkerLog/browser -l 8080"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
@@ -22,6 +23,7 @@
     "@angular/service-worker": "^22.0.0",
     "@angular/ssr": "^22.0.1",
     "express": "^5.1.0",
+    "firebase": "^12.19.0",
     "highlight.js": "^11.12.0",
     "ngx-highlightjs": "^14.0.1",
     "rxjs": "~7.8.0",
