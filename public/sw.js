@@ -1,13 +1,5 @@
 /* ==========================================================================
  * ThinkerLog · Service Worker
- * --------------------------------------------------------------------------
- * Estrategias:
- *  - App Shell (precache):      páginas base, manifest, íconos y offline.html
- *  - Navegación (HTML):         Network First  -> caché -> offline.html
- *  - JS / CSS:                  Network First  -> caché  (siempre código fresco)
- *  - Imágenes / fuentes:        Cache First    -> red    (rápido y offline)
- *
- * Cambia VERSION cada vez que publiques para forzar la actualización.
  * ========================================================================== */
 
 const VERSION = 'v3.0.0';
@@ -81,6 +73,20 @@ self.addEventListener('message', (event) => {
   if (event.data?.type === 'GET_VERSION') {
     event.source?.postMessage({ type: 'VERSION', version: VERSION });
   }
+  // Permite pre-cachear una URL específica bajo demanda con cache.add()
+  if (event.data?.type === 'CACHE_URL' && event.data?.url) {
+    event.waitUntil(
+      (async () => {
+        const cache = await caches.open(RUNTIME_CACHE);
+        await cache.add(event.data.url);
+        log('URL añadida a caché con cache.add():', event.data.url);
+      })(),
+    );
+  }
+  // Permite recortar el número máximo de elementos en RUNTIME_CACHE usando cache.keys() y cache.delete()
+  if (event.data?.type === 'TRIM_CACHE') {
+    event.waitUntil(trimCache(RUNTIME_CACHE, event.data.maxItems || 40));
+  }
 });
 
 /* ------------------------------ FETCH ----------------------------------- */
@@ -99,13 +105,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2) Imágenes y fuentes
+  // 2) Imágenes y fuentes (Cache First)
   if (['image', 'font'].includes(request.destination)) {
     event.respondWith(cacheFirst(request));
     return;
   }
 
-  // 3) Scripts, estilos, manifest y demás
+  // 3) Hojas de estilo y manifest (Stale-While-Revalidate usando cache.match y cache.put)
+  if (request.destination === 'style' || url.pathname.endsWith('.webmanifest')) {
+    event.respondWith(staleWhileRevalidate(request));
+    return;
+  }
+
+  // 4) Scripts y demás (Network First)
   event.respondWith(networkFirst(request));
 });
 
@@ -114,7 +126,7 @@ async function networkFirstPage(event) {
   try {
     const preload = await event.preloadResponse;
     const response = preload || (await fetch(event.request));
-    putInCache(RUNTIME_CACHE, event.request, response.clone());
+    await putInCache(RUNTIME_CACHE, event.request, response.clone());
     return response;
   } catch {
     log('Sin conexión, sirviendo desde caché:', event.request.url);
@@ -129,7 +141,7 @@ async function networkFirstPage(event) {
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
-    putInCache(RUNTIME_CACHE, request, response.clone());
+    await putInCache(RUNTIME_CACHE, request, response.clone());
     return response;
   } catch {
     const cached = await caches.match(request);
@@ -142,15 +154,43 @@ async function cacheFirst(request) {
   if (cached) return cached;
   try {
     const response = await fetch(request);
-    putInCache(RUNTIME_CACHE, request, response.clone());
+    await putInCache(RUNTIME_CACHE, request, response.clone());
     return response;
   } catch {
     return Response.error();
   }
 }
 
+async function staleWhileRevalidate(request) {
+  const cache = await caches.open(RUNTIME_CACHE);
+  const cachedResponse = await cache.match(request);
+  const networkFetch = fetch(request)
+    .then(async (response) => {
+      await putInCache(RUNTIME_CACHE, request, response.clone());
+      return response;
+    })
+    .catch(() => cachedResponse);
+
+  return cachedResponse || networkFetch;
+}
+
 async function putInCache(cacheName, request, response) {
   if (!response || response.status !== 200 || response.type !== 'basic' || response.redirected) return;
   const cache = await caches.open(cacheName);
   await cache.put(request, response);
+  await trimCache(cacheName, 60);
+}
+
+/**
+ * Limita el tamaño de una caché usando `caches.has()`, `caches.open()`, `cache.keys()` y `cache.delete()`.
+ */
+async function trimCache(cacheName, maxItems) {
+  const exists = await caches.has(cacheName);
+  if (!exists) return;
+  const cache = await caches.open(cacheName);
+  const keys = await cache.keys();
+  if (keys.length > maxItems) {
+    const toDelete = keys.slice(0, keys.length - maxItems);
+    await Promise.all(toDelete.map((req) => cache.delete(req)));
+  }
 }

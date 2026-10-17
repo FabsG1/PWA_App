@@ -1,0 +1,37 @@
+[debug] [2026-10-07T21:25:48.775Z] ----------------------------------------------------------------------
+[debug] [2026-10-07T21:25:48.781Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\Favo_\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2026-10-07T21:25:48.781Z] CLI Version:   15.32.1
+[debug] [2026-10-07T21:25:48.782Z] Platform:      win32
+[debug] [2026-10-07T21:25:48.782Z] Node Version:  v24.16.0
+[debug] [2026-10-07T21:25:48.782Z] Detected Agent: unknown
+[debug] [2026-10-07T21:25:48.782Z] Time:          Wed Oct 07 2026 15:25:48 GMT-0600 (hora estándar central)
+[debug] [2026-10-07T21:25:48.782Z] ----------------------------------------------------------------------
+[debug] 
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\APProgresive\thinkerlog
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
+[debug] [2026-10-07T21:28:39.341Z] ExitPromptError: User force closed the prompt with SIGINT
+    at Interface.sigint (C:\Users\Favo_\AppData\Roaming\npm\node_modules\firebase-tools\node_modules\@inquirer\core\dist\commonjs\lib\create-prompt.js:101:37)
+    at Interface.emit (node:events:509:28)
+    at [_ttyWrite] [as _ttyWrite] (node:internal/readline/interface:1327:18)
+    at ReadStream.onkeypress (node:internal/readline/interface:284:20)
+    at ReadStream.emit (node:events:521:24)
+    at emitKeys (node:internal/readline/utils:371:14)
+    at emitKeys.next (<anonymous>)
+    at ReadStream.onData (node:internal/readline/emitKeypressEvents:64:36)
+    at ReadStream.emit (node:events:509:28)
+    at addChunk (node:internal/streams/readable:563:12)
+[error] 
+[error] Error: An unexpected error has occurred.

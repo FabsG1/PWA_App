@@ -16,9 +16,13 @@ export interface Post {
   author: string;
   authorId: string;
   createdAt: any;
+  updatedAt?: any;
   votes: number;
-  upvotes: string[]; // IDs de usuarios que votaron positivo
-  downvotes: string[]; // IDs de usuarios que votaron negativo
+  upvotes: string[]; // IDs de usuarios que dieron Like (👍)
+  downvotes: string[]; // IDs de usuarios que dieron Dislike (👎)
+  commentsCount?: number; // Cantidad de comentarios
+  imageUrl?: string; // URL de imagen externa
+  videoUrl?: string; // URL de video (YouTube, Vimeo o archivo MP4/WebM)
   fileUrl?: string; // URL del archivo subido (PDF, imagen)
   fileName?: string;
 }
@@ -89,18 +93,57 @@ export class FirebaseService {
       createdAt: Timestamp.now(),
       votes: 0,
       upvotes: [],
-      downvotes: []
+      downvotes: [],
+      commentsCount: 0
     };
 
     const docRef = await addDoc(collection(this.firestore, 'posts'), newPost);
     return docRef.id;
   }
 
+  async updatePost(
+    postId: string,
+    changes: Partial<Pick<Post, 'title' | 'body' | 'category' | 'tags' | 'imageUrl' | 'videoUrl' | 'fileUrl' | 'fileName'>>
+  ) {
+    const user = this.currentUser();
+    if (!user || !this.firestore) throw new Error('No autenticado');
+
+    const postRef = doc(this.firestore, 'posts', postId);
+    const snap = await getDoc(postRef);
+    if (!snap.exists()) throw new Error('Publicación no encontrada');
+
+    const current = snap.data() as Post;
+    if (current.authorId !== user.uid) {
+      throw new Error('Solo el autor puede editar esta publicación');
+    }
+
+    await updateDoc(postRef, {
+      ...changes,
+      updatedAt: Timestamp.now()
+    });
+  }
+
   async getPosts(): Promise<Post[]> {
     if (!this.firestore) return [];
     const q = query(collection(this.firestore, 'posts'), orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Post));
+    const posts = snapshot.docs.map(d => ({ id: d.id, ...d.data() } as Post));
+
+    // Si algún post antiguo no tiene commentsCount calculado, lo obtenemos de su subcolección
+    await Promise.all(
+      posts.map(async (p) => {
+        if (typeof p.commentsCount !== 'number' && p.id) {
+          try {
+            const cSnap = await getDocs(collection(this.firestore, `posts/${p.id}/comments`));
+            p.commentsCount = cSnap.size;
+          } catch {
+            p.commentsCount = 0;
+          }
+        }
+      })
+    );
+
+    return posts;
   }
 
   async getPost(id: string): Promise<Post | null> {
@@ -109,7 +152,7 @@ export class FirebaseService {
     return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } as Post : null;
   }
 
-  // --- VOTOS ---
+  // --- LIKES / DISLIKES (VOTOS) ---
   async votePost(postId: string, voteType: 'up' | 'down') {
     const user = this.currentUser();
     if (!user || !this.firestore) throw new Error('No autenticado');
@@ -122,13 +165,20 @@ export class FirebaseService {
     let upvotes = post.upvotes || [];
     let downvotes = post.downvotes || [];
 
+    const alreadyUpvoted = upvotes.includes(user.uid);
+    const alreadyDownvoted = downvotes.includes(user.uid);
+
     // Limpiar voto previo
     upvotes = upvotes.filter(id => id !== user.uid);
     downvotes = downvotes.filter(id => id !== user.uid);
 
-    // Aplicar nuevo voto
-    if (voteType === 'up') upvotes.push(user.uid);
-    if (voteType === 'down') downvotes.push(user.uid);
+    // Si vuelve a pulsar el mismo botón, se quita el voto (toggle); si no, se aplica el nuevo
+    if (voteType === 'up' && !alreadyUpvoted) {
+      upvotes.push(user.uid);
+    }
+    if (voteType === 'down' && !alreadyDownvoted) {
+      downvotes.push(user.uid);
+    }
 
     const votes = upvotes.length - downvotes.length;
     await updateDoc(postRef, { upvotes, downvotes, votes });
@@ -146,6 +196,11 @@ export class FirebaseService {
       createdAt: Timestamp.now()
     };
     await addDoc(collection(this.firestore, `posts/${postId}/comments`), newComment);
+
+    // Actualizar contador de comentarios en el documento del post
+    const commentsSnap = await getDocs(collection(this.firestore, `posts/${postId}/comments`));
+    const postRef = doc(this.firestore, 'posts', postId);
+    await updateDoc(postRef, { commentsCount: commentsSnap.size });
   }
 
   async getComments(postId: string): Promise<Comment[]> {

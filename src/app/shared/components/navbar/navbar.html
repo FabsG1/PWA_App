@@ -11,8 +11,9 @@
     <div class="nav-section">
       <h3>Principal</h3>
       <a routerLink="/foro" routerLinkActive="active" class="nav-item">🏠 Inicio del foro</a>
-      <a href="#" class="nav-item">🔥 Tendencias</a>
-      <a href="#" class="nav-item">🔖 Guardados</a>
+      <a routerLink="/guardados" routerLinkActive="active" class="nav-item">
+        🔖 Guardados / Caché ({{ cache.savedPostIds().length }})
+      </a>
     </div>
 
     <div class="nav-section">
@@ -78,8 +79,7 @@
 <!-- ===== Móvil: barra inferior ===== -->
 <nav class="bottombar" aria-label="Navegación móvil">
   <a routerLink="/foro" routerLinkActive="active"><span>🏠</span>Foro</a>
-  <a href="#"><span>🔥</span>Tendencias</a>
+  <a routerLink="/guardados" routerLinkActive="active"><span>🔖</span>Caché ({{ cache.savedPostIds().length }})</a>
   <a routerLink="/nueva-publicacion" routerLinkActive="active" class="fab"><span>＋</span></a>
-  <a href="#"><span>🔖</span>Guardados</a>
   <a routerLink="/perfil" routerLinkActive="active"><span>👤</span>Perfil</a>
 </nav>

@@ -5,6 +5,7 @@ import { PostDetailComponent } from './features/post-detail/post-detail';
 import { LoginComponent } from './features/login/login';
 
 import { ProfileComponent } from './features/profile/profile';
+import { CacheManagerComponent } from './features/cache-manager/cache-manager';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'foro', pathMatch: 'full' },
@@ -12,5 +13,6 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'nueva-publicacion', component: CreatePostComponent },
   { path: 'post/:id', component: PostDetailComponent },
-  { path: 'perfil', component: ProfileComponent }
+  { path: 'perfil', component: ProfileComponent },
+  { path: 'guardados', component: CacheManagerComponent }
 ];

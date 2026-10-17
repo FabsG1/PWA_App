@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { PwaService } from '../../../core/services/pwa.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { FirebaseService } from '../../../core/services/firebase.service';
+import { CacheService } from '../../../core/services/cache.service';
 
 @Component({
   selector: 'app-navbar',
@@ -16,4 +17,5 @@ export class NavbarComponent {
   protected readonly pwa = inject(PwaService);
   protected readonly theme = inject(ThemeService);
   protected readonly firebase = inject(FirebaseService);
+  protected readonly cache = inject(CacheService);
 }
